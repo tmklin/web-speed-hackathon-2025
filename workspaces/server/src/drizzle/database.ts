@@ -25,6 +25,7 @@ export async function initializeDatabase(): Promise<void> {
   const TEMP_PATH = path.resolve(await fsp.mkdtemp(path.resolve(os.tmpdir(), './wsh-')), './database.sqlite');
   await fsp.copyFile(SQLITE_PATH, TEMP_PATH);
 
+/*
   database = drizzle({
     client: createClient({
       syncInterval: 5000,
@@ -32,4 +33,13 @@ export async function initializeDatabase(): Promise<void> {
     }),
     schema,
   });
+}
+*/
+database = drizzle({
+  client: createClient({
+    syncInterval: 1000,
+    url: `file:${TEMP_PATH}`,
+  }),
+  schema,
+});
 }

@@ -21,6 +21,7 @@ import { z } from 'zod';
 import type { ZodOpenApiVersion } from 'zod-openapi';
 
 import { getDatabase, initializeDatabase } from '@wsh-2025/server/src/drizzle/database';
+//import { fa } from '@faker-js/faker';
 
 export function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex');
@@ -29,7 +30,9 @@ export function hashPassword(password: string): string {
 }
 
 export function verifyPassword(password: string, hashedPassword: string): boolean {
+  if (!hashedPassword) return false;
   const [salt, storedHash] = hashedPassword.split(':');
+  if (!salt || !storedHash) return false; 
   const hashBuffer = scryptSync(password, salt ?? '', 64) as Buffer;
   const storedBuffer = Buffer.from(storedHash ?? '', 'hex');
 
