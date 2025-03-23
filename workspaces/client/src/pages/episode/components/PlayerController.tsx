@@ -3,6 +3,8 @@ import { StandardSchemaV1 } from '@standard-schema/spec';
 import * as schema from '@wsh-2025/schema/src/api/schema';
 import { Duration } from 'luxon';
 import invariant from 'tiny-invariant';
+import { useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { Hoverable } from '@wsh-2025/client/src/features/layout/components/Hoverable';
 import { SeekThumbnail } from '@wsh-2025/client/src/pages/episode/components/SeekThumbnail';
@@ -20,6 +22,13 @@ export const PlayerController = ({ episode }: Props) => {
   const [currentTime, updateCurrentTime] = useCurrentTime();
   const [playing, togglePlaying] = usePlaying();
   const [muted, toggleMuted] = useMuted();
+  const formattedTime = useMemo(() => {
+    return `${Duration.fromObject({ seconds: currentTime }).toFormat('mm:ss')} / ${Duration.fromObject({ seconds: duration }).toFormat('mm:ss')}`;
+  }, [currentTime, duration]);
+  const handleSeek = useCallback(([t]: number[]) => {
+    invariant(t);
+    updateCurrentTime(t);
+  }, [updateCurrentTime]);
 
   return (
     <div className="relative h-[120px]">
@@ -31,21 +40,13 @@ export const PlayerController = ({ episode }: Props) => {
             <SeekThumbnail episode={episode} />
           </div>
 
-          <Slider.Root
+          <Slider.Root onValueChange={handleSeek}
             className="group relative flex h-[20px] w-full cursor-pointer touch-none select-none flex-row items-center"
             max={duration}
             min={0}
             orientation="horizontal"
             value={[currentTime]}
-            onValueChange={([t]) => {
-              invariant(t);
-              updateCurrentTime(t);
-            }}
           >
-            <Slider.Track className="grow-1 relative h-[2px] rounded-[4px] bg-[#999999] group-hover:h-[4px]">
-              <Slider.Range className="absolute h-[2px] rounded-[4px] bg-[#1c43d1] group-hover:h-[4px]" />
-            </Slider.Track>
-            <Slider.Thumb className="block size-[20px] rounded-[10px] bg-[#1c43d1] opacity-0 focus:outline-none group-hover:opacity-100" />
           </Slider.Root>
         </div>
 
@@ -67,11 +68,7 @@ export const PlayerController = ({ episode }: Props) => {
                 </button>
               </Hoverable>
 
-              <span className="ml-[4px] block shrink-0 grow-0 text-[12px] font-bold text-[#FFFFFF]">
-                {Duration.fromObject({ seconds: currentTime }).toFormat('mm:ss')}
-                {' / '}
-                {Duration.fromObject({ seconds: duration }).toFormat('mm:ss')}
-              </span>
+              <span className="ml-[4px] text-[12px] font-bold text-[#FFFFFF]">{formattedTime}</span>
             </div>
           </div>
 
