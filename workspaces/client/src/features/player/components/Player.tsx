@@ -38,13 +38,12 @@ export const Player = ({ className, loop, playerRef, playerType, playlistUrl }: 
       abortController.abort();
       if (playerRefInternal.current) {
         mountElement.removeChild(playerRefInternal.current.videoElement);
-        playerRefInternal.current.destory(); // 修正: `destory()` → `destroy()`
+        playerRefInternal.current.destory();
       }
       assignRef(playerRef, null);
     };
   }, [playerType]);
 
-  // `playlistUrl` or `loop` の変更時のみ `player.load()` を更新
   useEffect(() => {
     if (!playerRefInternal.current) return;
     playerRefInternal.current.load(playlistUrl, { loop: loop ?? false });
