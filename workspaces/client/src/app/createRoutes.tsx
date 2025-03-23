@@ -9,17 +9,22 @@ export function createRoutes(store: ReturnType<typeof createStore>): RouteObject
       path: '/',
       Component: Document,
       async loader() {
-        return prefetch(store);
+        return await prefetch(store);
       },
       children: [
         {
           index: true,
           lazy: async () => {
-            const { HomePage, prefetch } = await import('@wsh-2025/client/src/pages/home/components/HomePage');
-            return {
-              Component: HomePage,
-              loader: () => prefetch(store),
-            };
+            try {
+              const { HomePage, prefetch } = await import('@wsh-2025/client/src/pages/home/components/HomePage');
+              return {
+                Component: HomePage,
+                loader: async () => await prefetch(store),
+              };
+            } catch (error) {
+              console.error('Failed to load HomePage:', error);
+              return { Component: () => <div>ページの読み込みに失敗しました</div> };
+            }
           },
         },
         {
@@ -28,7 +33,7 @@ export function createRoutes(store: ReturnType<typeof createStore>): RouteObject
             const { EpisodePage, prefetch } = await import('@wsh-2025/client/src/pages/episode/components/EpisodePage');
             return {
               Component: EpisodePage,
-              loader: ({ params }) => prefetch(store, params),
+              loader: async ({ params }) => await prefetch(store, params),
             };
           },
         },
@@ -38,7 +43,7 @@ export function createRoutes(store: ReturnType<typeof createStore>): RouteObject
             const { ProgramPage, prefetch } = await import('@wsh-2025/client/src/pages/program/components/ProgramPage');
             return {
               Component: ProgramPage,
-              loader: ({ params }) => prefetch(store, params),
+              loader: async ({ params }) => await prefetch(store, params),
             };
           },
         },
@@ -48,7 +53,7 @@ export function createRoutes(store: ReturnType<typeof createStore>): RouteObject
             const { SeriesPage, prefetch } = await import('@wsh-2025/client/src/pages/series/components/SeriesPage');
             return {
               Component: SeriesPage,
-              loader: ({ params }) => prefetch(store, params),
+              loader: async ({ params }) => await prefetch(store, params),
             };
           },
         },
@@ -58,17 +63,16 @@ export function createRoutes(store: ReturnType<typeof createStore>): RouteObject
             const { TimetablePage, prefetch } = await import('@wsh-2025/client/src/pages/timetable/components/TimetablePage');
             return {
               Component: TimetablePage,
-              loader: () => prefetch(store),
+              loader: async () => await prefetch(store),
             };
           },
         },
         {
           path: '*',
           lazy: async () => {
-            const { NotFoundPage, prefetch } = await import('@wsh-2025/client/src/pages/not_found/components/NotFoundPage');
+            const { NotFoundPage } = await import('@wsh-2025/client/src/pages/not_found/components/NotFoundPage');
             return {
               Component: NotFoundPage,
-              loader: () => prefetch(store),
             };
           },
         },
